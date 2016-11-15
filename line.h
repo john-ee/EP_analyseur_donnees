@@ -28,8 +28,7 @@ typedef struct Line
 	int position;
 } *Line;
 
-typedef struct Parcours_Paquet *Parcours_Paquet;
-
+typedef struct Parcours_Paquet Parcours_Paquet;
 struct Parcours_Paquet
 {
 	int pid;
@@ -38,15 +37,15 @@ struct Parcours_Paquet
 	float duree;
 	float attente_file;
 	int arrivee;
-	Parcours_Paquet next;
+	Parcours_Paquet *next;
 };
+typedef Parcours_Paquet* Liste;
 
 Line parse_line(char *l);
 void print_line(Line l);
-Parcours_Paquet new_parcours_paquet(Line l);
-Parcours_Paquet add_parcours_paquet(Line l, Parcours_Paquet liste);
-void del_parcours_paquet(int pid, Parcours_Paquet liste);
-void free_liste(Parcours_Paquet liste);
+Liste add_parcours_paquet(Line l, Liste liste);
+Liste del_parcours_paquet(int pid, Liste liste);
+void free_liste(Liste liste);
 void set_duree(Parcours_Paquet parcours, float t);
 int compteur_noeuds(FILE *fichier);
 //void process_data(FILE *fichier, Parcours_Paquet tableau[], int taille_tableau[3]);

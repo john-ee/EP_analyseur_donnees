@@ -19,24 +19,26 @@ int main(int argc, char **argv)
 	size_t len = 0;
 	ssize_t read;
 	Line line;
-	Parcours_Paquet liste = NULL;
+	Parcours_Paquet *liste = NULL;
 
+	int i = 0;
 	while((read=getline(&ligne, &len, trace)) != -1){
-		printf("ok\n");
 		line = parse_line(ligne);
 		if (line->code == DEPART_SOURCE)
 			liste = add_parcours_paquet(line, liste);
 		else if (line->code == ARR_DEST)
-			del_parcours_paquet(line->pid, liste);
+			liste = del_parcours_paquet(line->pid, liste);
+		printf("%d\n",i++);
 	}
 
-	int i = 0;
+	i = 0;
 	printf("%d\n",line->pid);
 	while(liste != NULL){
 		liste = liste->next;
 		i++;
 	}
 	printf("On a %d elts\n",i);
+	free_liste(liste);
 	fclose(trace);
 	fclose(matrice);
 	return 0;

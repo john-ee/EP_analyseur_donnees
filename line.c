@@ -44,18 +44,7 @@ void print_line(Line l)
 	printf("%d %d %d\n",l->source,l->destination,l->position);
 }
 
-Parcours_Paquet new_parcours_paquet(Line l)
-{
-	Parcours_Paquet parcours = malloc(sizeof(struct Parcours_Paquet));
-	parcours->pid = l->pid;
-	parcours->source = l->source;
-	parcours->destination = l->destination;
-	parcours->duree = 0;
-	parcours->attente_file = 0;
-	parcours->arrivee = 0;
-	parcours->next = NULL;
-	return parcours;
-}
+
 
 /*void add_parcours_paquet(Line l, Parcours_Paquet liste)
 {
@@ -66,51 +55,46 @@ Parcours_Paquet new_parcours_paquet(Line l)
 		liste = new_parcours_paquet(l);
 }*/
 
-Parcours_Paquet add_parcours_paquet(Line l, Parcours_Paquet liste)
+Liste add_parcours_paquet(Line l, Liste liste)
 {
-	Parcours_Paquet new = new_parcours_paquet(l);
-	new->next = liste;
-	return new;
+	Parcours_Paquet* parcours = malloc(sizeof(Parcours_Paquet));
+	parcours->pid = l->pid;
+	parcours->source = l->source;
+	parcours->destination = l->destination;
+	parcours->duree = 0;
+	parcours->attente_file = 0;
+	parcours->arrivee = 0;
+	parcours->next = liste;
+	return parcours;
 }
 
-void del_parcours_paquet(int pid, Parcours_Paquet liste)
+Liste del_parcours_paquet(int pid, Liste liste)
 {
-	Parcours_Paquet tmp;
-	if (liste->pid == pid)
-	{
-		if (liste->next == NULL){
-			//free(liste);
-			liste = NULL;
-		}
-		else{
-			tmp = liste->next;
-			free(liste);
-			liste = tmp;
-		}
+	if (liste == NULL)
+		return NULL;
+
+	else if(liste->pid == pid){
+		Parcours_Paquet *tmp = liste->next;
+		free(liste);
+		//tmp = del_parcours_paquet(pid,tmp);
+		return tmp;
 	}
-	else{
-		while (liste->next->pid != pid)
-			liste = liste->next;
-		if (liste->next->next == NULL)
-			free(liste->next);
-		else{
-			tmp = liste->next->next;
-			free(liste->next);
-			liste->next = tmp;
-		}
+	else {
+		liste->next = del_parcours_paquet(pid,liste->next);
+		return liste;
 	}
 }
 
-void free_liste(Parcours_Paquet liste)
+void free_liste(Liste liste)
 {
-	Parcours_Paquet tmp;
+	Parcours_Paquet *tmp;
 	while(liste!=NULL){
 		tmp = liste->next;
 		free(liste);
 		liste = tmp;
 	}
 }
-
+/*
 void set_duree(Parcours_Paquet parcours, float t)
 {
 	parcours->duree = t;
@@ -127,7 +111,7 @@ void switch_arrivee(Parcours_Paquet parcours)
 		parcours->arrivee = 0;
 	else
 		parcours->arrivee = 1;
-}
+}*/
 
 int compteur_noeuds(FILE *fichier)
 {
