@@ -24,15 +24,21 @@ int main(int argc, char **argv)
 	int i = 0;
 	while((read=getline(&ligne, &len, trace)) != -1){
 		line = parse_line(ligne);
-		if (line->code == DEPART_SOURCE)
-			liste = add_parcours_paquet(line, liste);
-		else if (line->code == ARR_DEST)
-			liste = del_parcours_paquet(line->pid, liste);
-		printf("%d\n",i++);
+		switch(line->code)
+		{
+			case DEPART_SOURCE :
+				liste = add_parcours_paquet(line, liste);
+				break;
+			case ARR_DEST :
+				liste = del_parcours_paquet(line->pid, liste);
+				break;
+			default : break;
+		}
+		free(line);
 	}
 
 	i = 0;
-	printf("%d\n",line->pid);
+	printf("%d %d\n",liste->pid, liste->source);
 	while(liste != NULL){
 		liste = liste->next;
 		i++;
