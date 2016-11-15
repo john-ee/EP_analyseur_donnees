@@ -22,10 +22,22 @@ int main(int argc, char **argv)
 	Parcours_Paquet liste = NULL;
 
 	while((read=getline(&ligne, &len, trace)) != -1){
+		printf("ok\n");
 		line = parse_line(ligne);
-		add_parcours_paquet(line, &liste);
+		if (line->code == DEPART_SOURCE)
+			liste = add_parcours_paquet(line, liste);
+		else if (line->code == ARR_DEST)
+			del_parcours_paquet(line->pid, liste);
 	}
 
+	int i = 0;
+	printf("%d\n",line->pid);
+	while(liste != NULL){
+		liste = liste->next;
+		i++;
+	}
+	printf("On a %d elts\n",i);
+	fclose(trace);
 	fclose(matrice);
 	return 0;
 }

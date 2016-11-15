@@ -44,10 +44,11 @@ struct Parcours_Paquet
 Line parse_line(char *l);
 void print_line(Line l);
 Parcours_Paquet new_parcours_paquet(Line l);
-void add_parcours_paquet(Line l, Parcours_Paquet *liste);
+Parcours_Paquet add_parcours_paquet(Line l, Parcours_Paquet liste);
+void del_parcours_paquet(int pid, Parcours_Paquet liste);
+void free_liste(Parcours_Paquet liste);
 void set_duree(Parcours_Paquet parcours, float t);
 int compteur_noeuds(FILE *fichier);
-void compteur_paquets(FILE *fichier, int tab[3]);
-void process_data(FILE *fichier, Parcours_Paquet tableau[], int taille_tableau[3]);
+//void process_data(FILE *fichier, Parcours_Paquet tableau[], int taille_tableau[3]);
 
 #endif

@@ -57,13 +57,58 @@ Parcours_Paquet new_parcours_paquet(Line l)
 	return parcours;
 }
 
-void add_parcours_paquet(Line l, Parcours_Paquet *liste)
+/*void add_parcours_paquet(Line l, Parcours_Paquet liste)
 {
 	while(liste!=NULL && liste->pid == l->pid){
 		liste = liste->next;
 	}
 	if (liste == NULL)
 		liste = new_parcours_paquet(l);
+}*/
+
+Parcours_Paquet add_parcours_paquet(Line l, Parcours_Paquet liste)
+{
+	Parcours_Paquet new = new_parcours_paquet(l);
+	new->next = liste;
+	return new;
+}
+
+void del_parcours_paquet(int pid, Parcours_Paquet liste)
+{
+	Parcours_Paquet tmp;
+	if (liste->pid == pid)
+	{
+		if (liste->next == NULL){
+			//free(liste);
+			liste = NULL;
+		}
+		else{
+			tmp = liste->next;
+			free(liste);
+			liste = tmp;
+		}
+	}
+	else{
+		while (liste->next->pid != pid)
+			liste = liste->next;
+		if (liste->next->next == NULL)
+			free(liste->next);
+		else{
+			tmp = liste->next->next;
+			free(liste->next);
+			liste->next = tmp;
+		}
+	}
+}
+
+void free_liste(Parcours_Paquet liste)
+{
+	Parcours_Paquet tmp;
+	while(liste!=NULL){
+		tmp = liste->next;
+		free(liste);
+		liste = tmp;
+	}
 }
 
 void set_duree(Parcours_Paquet parcours, float t)
@@ -98,34 +143,7 @@ int compteur_noeuds(FILE *fichier)
 	return n+1;
 }
 
-void compteur_paquets(FILE *fichier, int tab[3])
-{
-	char *ligne = NULL;
-	size_t len = 0;
-	Line line;
-	int departs = 0;
-	int pid_min = 0, pid_max = 0;
-
-	while(getline(&ligne, &len, fichier) != -1){
-		line = parse_line(ligne);
-
-		switch(line->code){
-			case DEPART_SOURCE : departs++;
-				break;
-			default : break;
-		}
-
-		if (line->pid < pid_min)
-			pid_min = line->pid;
-		else if (line->pid > pid_max)
-			pid_max = line->pid;
-
-		free(line);
-	}
-	tab[0] = departs; tab[1] = pid_min; tab[2] = pid_max;
-}
-
-
+/*
 void process_data(FILE *fichier, Parcours_Paquet tableau[], int info_tableau[3])
 {
 	char *ligne = NULL;
@@ -161,4 +179,4 @@ void process_data(FILE *fichier, Parcours_Paquet tableau[], int info_tableau[3])
 		}
 		free(line);
 	}
-}
+}*/
