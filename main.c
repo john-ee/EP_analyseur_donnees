@@ -20,6 +20,7 @@ int main(int argc, char **argv)
 	ssize_t read;
 	Line line;
 	Parcours_Paquet *liste = NULL;
+	float moyenne_trajet = 0;
 
 	int i = 0;
 	while((read=getline(&ligne, &len, trace)) != -1){
@@ -28,8 +29,14 @@ int main(int argc, char **argv)
 		{
 			case DEPART_SOURCE :
 				liste = add_parcours_paquet(line, liste);
+
+				break;
+			case ARR_NOEUD : 
+				//liste = set_duree(liste, line->pid, )
 				break;
 			case ARR_DEST :
+				// factoriser en un parcours
+				moyenne_trajet += (line->t - get_duree(liste,line->pid));
 				liste = del_parcours_paquet(line->pid, liste);
 				break;
 			default : break;
@@ -38,7 +45,6 @@ int main(int argc, char **argv)
 	}
 
 	i = 0;
-	printf("%d %d\n",liste->pid, liste->source);
 	while(liste != NULL){
 		liste = liste->next;
 		i++;

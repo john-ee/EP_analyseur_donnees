@@ -2,11 +2,11 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <math.h>
 #include "line.h"
 
 Line parse_line(char *l)
 {
-	char *token = NULL;
 	Line line = malloc(sizeof(struct Line));;
 	line->t = atof(strtok(l," "));
 
@@ -23,15 +23,9 @@ Line parse_line(char *l)
 	line->tos = atoi(strtok(NULL," "));
 	line->bif = atoi(strtok(NULL," "));
 
-	token = strtok(NULL," ");
-	token++;
-	line->source = atoi(token);
-	token = strtok(NULL," ");
-	token++;
-	line->destination = atoi(token);
-	token = strtok(NULL," ");
-	token++;
-	line->position = atoi(token);
+	line->source = strdup(strtok(NULL," "));
+	line->destination = strdup(strtok(NULL," "));
+	line->position = strdup(strtok(NULL," "));
 
 	return line;
 }
@@ -41,7 +35,7 @@ void print_line(Line l)
 	printf("%f %d %d %d %d ",l->t,(int)l->code,l->pid,l->fid,l->tos);
 	if(l->code==DESTRUCTION)
 		printf("%d ",l->bif);
-	printf("%d %d %d\n",l->source,l->destination,l->position);
+	printf("%s %s %s\n",l->source,l->destination,l->position);
 }
 
 
@@ -59,11 +53,11 @@ Liste add_parcours_paquet(Line l, Liste liste)
 {
 	Parcours_Paquet* parcours = malloc(sizeof(Parcours_Paquet));
 	parcours->pid = l->pid;
-	parcours->source = l->source;
-	parcours->destination = l->destination;
-	parcours->duree = 0;
+	parcours->source = strdup(l->source);
+	parcours->destination = strdup(l->destination);
+	parcours->duree = l->t;
 	parcours->attente_file = 0;
-	parcours->arrivee = 0;
+	parcours->chemin = NULL;
 	parcours->next = liste;
 	return parcours;
 }
@@ -94,24 +88,60 @@ void free_liste(Liste liste)
 		liste = tmp;
 	}
 }
-/*
-void set_duree(Parcours_Paquet parcours, float t)
+
+float get_duree(Liste liste, int pid)
 {
-	parcours->duree = t;
+	if(liste->pid == pid)
+		return liste->duree;
+	else 
+		return get_duree(liste->next, pid);
 }
 
-void set_attente(Parcours_Paquet parcours, float t)
+Liste add_duree(Liste liste, int pid, float t)
 {
-	parcours->attente_file = t;
+	if (liste == NULL)
+		return NULL;
+
+	else if(liste->pid == pid){
+		liste->duree += t;
+		return liste;
+	}
+	else {
+		liste->next = add_duree(liste, pid, t);
+		return liste;
+	}
 }
 
-void switch_arrivee(Parcours_Paquet parcours)
+Liste subtract_duree(Liste liste, int pid, float t)
 {
-	if(parcours->arrivee)
-		parcours->arrivee = 0;
-	else
-		parcours->arrivee = 1;
-}*/
+	if (liste == NULL)
+		return NULL;
+
+	else if(liste->pid == pid){
+		float tmp = liste->duree;
+		liste->duree = abs(liste->duree - tmp);
+		return liste;
+	}
+	else {
+		liste->next = subtract_duree(liste, pid, t);
+		return liste;
+	}
+}
+
+Liste set_attente(Liste liste, int pid, float t)
+{
+	if (liste == NULL)
+		return NULL;
+
+	else if(liste->pid == pid){
+		liste->attente_file += t;
+		return liste;
+	}
+	else {
+		liste->next = set_attente(liste, pid, t);
+		return liste;
+	}
+}
 
 int compteur_noeuds(FILE *fichier)
 {
