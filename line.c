@@ -7,8 +7,6 @@
 
 Line parse_line(char *l)
 {
-	int i = 0;
-	//char *token = NULL;
 	Line line = malloc(sizeof(struct Line));;
 	line->t = atof(strtok(l," "));
 
@@ -31,19 +29,8 @@ Line parse_line(char *l)
 		line->bif = -1;
 
 	line->source = strdup(strtok(NULL," "));
-	//while (line->source[i])
-	//	i++;
-	//line->source[i] = '\0';
 	line->destination = strdup(strtok(NULL," "));
-	//i = 0;
-	//while (line->destination[i])
-	//	i++;
-	//line->destination[i] = '\0';
 	line->position = strdup(strtok(NULL," "));
-	//i = 0;
-	//while (line->position[i])
-	//	i++;
-	//line->position[i] = '\0';
 
 	return line;
 }
