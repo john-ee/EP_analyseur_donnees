@@ -20,10 +20,13 @@ int main(int argc, char **argv)
 	ssize_t read;
 	Line line;
 	Parcours_Paquet *liste = NULL;
+	Parcours_Paquet *tmp = NULL;
 	float moyenne_trajet = 0;
+	int nb_arrivees = 0;
 
 	int i = 0;
 	while((read=getline(&ligne, &len, trace)) != -1){
+		//printf("%d ",i++);
 		line = parse_line(ligne);
 		switch(line->code)
 		{
@@ -36,8 +39,11 @@ int main(int argc, char **argv)
 				break;
 			case ARR_DEST :
 				// factoriser en un parcours
-				moyenne_trajet += (line->t - get_duree(liste,line->pid));
+				//moyenne_trajet += (line->t - get_duree(liste,line->pid));
+				tmp = parcours(liste, line->pid);
+				moyenne_trajet += (line->t - tmp->duree);
 				liste = del_parcours_paquet(line->pid, liste);
+				nb_arrivees++;
 				break;
 			default : break;
 		}
@@ -45,11 +51,14 @@ int main(int argc, char **argv)
 	}
 
 	i = 0;
-	while(liste != NULL){
-		liste = liste->next;
+	tmp = liste;
+	while(tmp != NULL){
+		tmp = tmp->next;
 		i++;
 	}
 	printf("On a %d elts\n",i);
+	printf("%d %s %s %f\n",liste->pid, liste->source, liste->destination, liste->duree);
+	printf("%f\n", moyenne_trajet/nb_arrivees);
 	free_liste(liste);
 	fclose(trace);
 	fclose(matrice);

@@ -46,6 +46,7 @@ void print_line(Line l);
 Liste add_parcours_paquet(Line l, Liste liste);
 Liste del_parcours_paquet(int pid, Liste liste);
 void free_liste(Liste liste);
+Liste parcours(Liste liste, int pid);
 float get_duree(Liste liste, int pid);
 Liste add_duree(Liste liste, int pid, float t);
 Liste subtract_duree(Liste liste, int pid, float t);

@@ -7,6 +7,8 @@
 
 Line parse_line(char *l)
 {
+	int i = 0;
+	//char *token = NULL;
 	Line line = malloc(sizeof(struct Line));;
 	line->t = atof(strtok(l," "));
 
@@ -20,12 +22,28 @@ Line parse_line(char *l)
 		default : line->code = 0; break;
 	}
 	line->pid = atoi(strtok(NULL," "));
+	line->fid = atoi(strtok(NULL," "));
 	line->tos = atoi(strtok(NULL," "));
-	line->bif = atoi(strtok(NULL," "));
+
+	if (line->code != 4)
+		line->bif = atoi(strtok(NULL," "));
+	else
+		line->bif = -1;
 
 	line->source = strdup(strtok(NULL," "));
+	//while (line->source[i])
+	//	i++;
+	//line->source[i] = '\0';
 	line->destination = strdup(strtok(NULL," "));
+	//i = 0;
+	//while (line->destination[i])
+	//	i++;
+	//line->destination[i] = '\0';
 	line->position = strdup(strtok(NULL," "));
+	//i = 0;
+	//while (line->position[i])
+	//	i++;
+	//line->position[i] = '\0';
 
 	return line;
 }
@@ -87,6 +105,16 @@ void free_liste(Liste liste)
 		free(liste);
 		liste = tmp;
 	}
+}
+
+Liste parcours(Liste liste, int pid)
+{
+	if (liste == NULL)
+		return NULL;
+	if(liste->pid == pid)
+		return liste;
+	else 
+		return parcours(liste->next,pid);
 }
 
 float get_duree(Liste liste, int pid)
