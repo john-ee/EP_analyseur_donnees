@@ -128,7 +128,7 @@ Liste add_duree(Liste liste, int pid, double t)
 		return liste;
 	}
 	else {
-		liste->next = add_duree(liste, pid, t);
+		liste->next = add_duree(liste->next, pid, t);
 		return liste;
 	}
 }
@@ -144,12 +144,12 @@ Liste subtract_duree(Liste liste, int pid, double t)
 		return liste;
 	}
 	else {
-		liste->next = subtract_duree(liste, pid, t);
+		liste->next = subtract_duree(liste->next, pid, t);
 		return liste;
 	}
 }
 
-Liste set_attente(Liste liste, int pid, double t)
+Liste add_attente(Liste liste, int pid, double t)
 {
 	if (liste == NULL)
 		return NULL;
@@ -159,7 +159,22 @@ Liste set_attente(Liste liste, int pid, double t)
 		return liste;
 	}
 	else {
-		liste->next = set_attente(liste, pid, t);
+		liste->next = add_attente(liste->next, pid, t);
+		return liste;
+	}
+}
+
+Liste substract_attente(Liste liste, int pid, double t)
+{
+	if (liste == NULL)
+		return NULL;
+
+	else if(liste->pid == pid){
+		liste->attente_file = abs(liste->duree - t);
+		return liste;
+	}
+	else {
+		liste->next = substract_attente(liste->next, pid, t);
 		return liste;
 	}
 }

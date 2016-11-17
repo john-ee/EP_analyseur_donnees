@@ -49,7 +49,8 @@ Liste parcours(Liste liste, int pid);
 double get_duree(Liste liste, int pid);
 Liste add_duree(Liste liste, int pid, double t);
 Liste subtract_duree(Liste liste, int pid, double t);
-Liste set_attente(Liste liste, int pid, double t);
+Liste add_attente(Liste liste, int pid, double t);
+Liste substract_attente(Liste liste, int pid, double t);
 int compteur_noeuds(FILE *fichier);
 //void process_data(FILE *fichier, Parcours_Paquet tableau[], int taille_tableau[3]);
 

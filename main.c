@@ -29,7 +29,7 @@ int main(int argc, char **argv)
 	Line line;
 	Parcours_Paquet *liste = NULL;
 	Parcours_Paquet *tmp = NULL;
-	double moyenne_trajet = 0;
+	double moyenne_trajet = 0, moyenne_attente = 0;
 	int nb_arrivees = 0;
 	int nb_departs = 0, taille_tab_fid = 0, nb_flux_actifs = 0, nb_pertes = 0;
 	int *tab_fid = NULL;
@@ -60,13 +60,18 @@ int main(int argc, char **argv)
 				break;
 
 			case ARR_NOEUD : 
-				//liste = set_duree(liste, line->pid, )
+				liste = add_attente(liste, line->pid, line->t);
+				break;
+
+			case DEPART_FILE : 
+				liste = substract_attente(liste, line->pid, line->t);
 				break;
 
 			case ARR_DEST :
 				// factoriser en un parcours
 				tmp = parcours(liste, line->pid);
 				moyenne_trajet += (line->t - tmp->duree);
+				moyenne_attente+= tmp->attente_file;
 				liste = del_parcours_paquet(line->pid, liste);
 				nb_arrivees++;
 				tab_fid[line->fid]--;
@@ -77,6 +82,7 @@ int main(int argc, char **argv)
 				tab_fid[line->fid]--;
 				nb_pertes++;
 				paquets_perdus_par_noeuds[line->position]++;
+				moyenne_attente+= tmp->attente_file;
 			default : break;
 		}
 		for (i=0;i<taille_tab_fid;i++)
@@ -111,6 +117,7 @@ int main(int argc, char **argv)
 			printf("%d ",i);
 	printf("\n");
 	printf("La moyenne du trajet est %lf\n", moyenne_trajet/nb_arrivees);
+	printf("La moyenne d'attente est %lf\n", moyenne_attente/nb_departs);
 
 	if(plot_graph) 
 	{
