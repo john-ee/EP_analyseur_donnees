@@ -7,6 +7,7 @@
 
 Line parse_line(char *l)
 {
+	char *token = NULL;
 	Line line = malloc(sizeof(struct Line));;
 	line->t = atof(strtok(l," "));
 
@@ -28,19 +29,25 @@ Line parse_line(char *l)
 	else
 		line->bif = -1;
 
-	line->source = strdup(strtok(NULL," "));
-	line->destination = strdup(strtok(NULL," "));
-	line->position = strdup(strtok(NULL," "));
+	token = strtok(NULL," ");
+	token++;
+	line->source = atoi(token);
+	token = strtok(NULL," ");
+	token++;
+	line->destination = atoi(token);
+	token = strtok(NULL," ");
+	token++;
+	line->position = atoi(token);
 
 	return line;
 }
 
 void print_line(Line l)
 {
-	printf("%f %d %d %d %d ",l->t,(int)l->code,l->pid,l->fid,l->tos);
+	printf("%lf %d %d %d %d ",l->t,(int)l->code,l->pid,l->fid,l->tos);
 	if(l->code==DESTRUCTION)
 		printf("%d ",l->bif);
-	printf("%s %s %s\n",l->source,l->destination,l->position);
+	printf("%d %d %d\n",l->source,l->destination,l->position);
 }
 
 
@@ -58,11 +65,10 @@ Liste add_parcours_paquet(Line l, Liste liste)
 {
 	Parcours_Paquet* parcours = malloc(sizeof(Parcours_Paquet));
 	parcours->pid = l->pid;
-	parcours->source = strdup(l->source);
-	parcours->destination = strdup(l->destination);
+	parcours->source = l->source;
+	parcours->destination = l->destination;
 	parcours->duree = l->t;
 	parcours->attente_file = 0;
-	parcours->chemin = NULL;
 	parcours->next = liste;
 	return parcours;
 }
@@ -104,7 +110,7 @@ Liste parcours(Liste liste, int pid)
 		return parcours(liste->next,pid);
 }
 
-float get_duree(Liste liste, int pid)
+double get_duree(Liste liste, int pid)
 {
 	if(liste->pid == pid)
 		return liste->duree;
@@ -112,7 +118,7 @@ float get_duree(Liste liste, int pid)
 		return get_duree(liste->next, pid);
 }
 
-Liste add_duree(Liste liste, int pid, float t)
+Liste add_duree(Liste liste, int pid, double t)
 {
 	if (liste == NULL)
 		return NULL;
@@ -127,13 +133,13 @@ Liste add_duree(Liste liste, int pid, float t)
 	}
 }
 
-Liste subtract_duree(Liste liste, int pid, float t)
+Liste subtract_duree(Liste liste, int pid, double t)
 {
 	if (liste == NULL)
 		return NULL;
 
 	else if(liste->pid == pid){
-		float tmp = liste->duree;
+		double tmp = liste->duree;
 		liste->duree = abs(liste->duree - tmp);
 		return liste;
 	}
@@ -143,7 +149,7 @@ Liste subtract_duree(Liste liste, int pid, float t)
 	}
 }
 
-Liste set_attente(Liste liste, int pid, float t)
+Liste set_attente(Liste liste, int pid, double t)
 {
 	if (liste == NULL)
 		return NULL;

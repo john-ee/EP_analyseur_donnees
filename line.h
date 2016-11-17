@@ -8,7 +8,7 @@ DEPART_SOURCE, ARR_NOEUD, DEPART_FILE, ARR_DEST, DESTRUCTION
 typedef struct Line
 {
 	//moment t de l'evenmt
-	float t;
+	double t;
 	//Voir def de CODE
 	CODE code;
 	//id unique du paquet
@@ -20,23 +20,22 @@ typedef struct Line
 	//operateur de bifurcation
 	int bif;
 	//source du paquet
-	char *source;
+	int source;
 	//dest du paquet
-	char *destination;
+	int destination;
 	//pour code = 0,1,3,4 : position du paquet
 	//pour code = 2 (depart file d'attente) : prochain saut
-	char *position;
+	int position;
 } *Line;
 
 typedef struct Parcours_Paquet Parcours_Paquet;
 struct Parcours_Paquet
 {
 	int pid;
-	char *source;
-	char *destination;
-	float duree;
-	float attente_file;
-	char *chemin;
+	int source;
+	int destination;
+	double duree;
+	double attente_file;
 	Parcours_Paquet *next;
 };
 typedef Parcours_Paquet* Liste;
@@ -47,10 +46,10 @@ Liste add_parcours_paquet(Line l, Liste liste);
 Liste del_parcours_paquet(int pid, Liste liste);
 void free_liste(Liste liste);
 Liste parcours(Liste liste, int pid);
-float get_duree(Liste liste, int pid);
-Liste add_duree(Liste liste, int pid, float t);
-Liste subtract_duree(Liste liste, int pid, float t);
-Liste set_attente(Liste liste, int pid, float t);
+double get_duree(Liste liste, int pid);
+Liste add_duree(Liste liste, int pid, double t);
+Liste subtract_duree(Liste liste, int pid, double t);
+Liste set_attente(Liste liste, int pid, double t);
 int compteur_noeuds(FILE *fichier);
 //void process_data(FILE *fichier, Parcours_Paquet tableau[], int taille_tableau[3]);
 
