@@ -12,7 +12,7 @@
 
 #define BUFSIZE 150
 #define STRINGSIZE 50
-#define SAUTER_LIGNE 100
+#define SAUTER_LIGNE 1
 
 int main(int argc, char **argv)
 {
@@ -113,9 +113,9 @@ int main(int argc, char **argv)
 				paquets_perdus_par_noeuds[line->position]++;
 			default : break;
 		}
-
+		nb_flux_actifs = 0;
 		for (i=0;i<taille_tab_fid;i++)
-				if(tab_fid[i])
+				if(tab_fid[i]>0)
 					nb_flux_actifs++;
 		// Dans le cas si l'utilisateur veut faire le graphe
 		if(plot_graph)
