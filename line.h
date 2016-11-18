@@ -40,6 +40,13 @@ struct Parcours_Paquet
 };
 typedef Parcours_Paquet* Liste;
 
+typedef struct
+{
+	double moy;
+	double q;
+	double k;
+} Calcul_Moy;
+
 Line parse_line(char *l);
 void print_line(Line l);
 Liste add_parcours_paquet(Line l, Liste liste);
@@ -52,6 +59,7 @@ Liste subtract_duree(Liste liste, int pid, double t);
 Liste add_attente(Liste liste, int pid, double t);
 Liste substract_attente(Liste liste, int pid, double t);
 int compteur_noeuds(FILE *fichier);
-//void process_data(FILE *fichier, Parcours_Paquet tableau[], int taille_tableau[3]);
+Calcul_Moy mupdate_Calcul_Moy(Calcul_Moy m, double x);
+double get_variance(Calcul_Moy m);
 
 #endif
