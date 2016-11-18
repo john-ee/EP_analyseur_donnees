@@ -1,5 +1,5 @@
 APPLI=analyse
-CSRC= main.c line.c
+CSRC= main.c process_data.c
 CC = gcc -Wall -Wextra -g
 
 COBJ=$(CSRC:.c=.o)
