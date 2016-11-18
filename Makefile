@@ -1,3 +1,7 @@
+#file Makefile
+#author John-Nathan Hill
+
+
 APPLI=analyse
 CSRC= main.c process_data.c
 CC = gcc -Wall -Wextra -g

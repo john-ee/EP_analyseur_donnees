@@ -10,9 +10,16 @@
 #include <string.h>
 #include "process_data.h"
 
+// BUFSIZE est utilisé pour le buffer, afin de minimiser le nombre d'écriture dans le fichier
 #define BUFSIZE 150
+
+// STRINGSIZE sert pour les chaînes de caractères que l'on ajoute au buffer
 #define STRINGSIZE 50
+
+// SAUTER_LIGNE permet de sauter 1 lignes sur X à écrire dans le buffer pour éviter de surcharger le graphe
+// Note :  SAUTER_LIGNE = 1, on ne saute pas de lignes
 #define SAUTER_LIGNE 1
+
 
 int main(int argc, char **argv)
 {
@@ -59,8 +66,6 @@ int main(int argc, char **argv)
 	moy_attente.moy = 0; moy_attente.q = 0; moy_attente.k = 0;
 	
 
-	
-
 	i = 0;
 	// A chaque itération de while, on lit une ligne du fichier, tant que l'on n'a pas encore atteint la fin
 	while((read=getline(&ligne, &len, trace)) != -1)
@@ -84,17 +89,17 @@ int main(int argc, char **argv)
 				break;
 
 			case ARR_NOEUD : 
-				liste = add_attente(liste, line->pid, line->t);
+				liste = substract_attente(liste, line->pid, line->t);
 				break;
 
 			case DEPART_FILE : 
-				liste = substract_attente(liste, line->pid, line->t);
+				liste = add_attente(liste, line->pid, line->t);
 				break;
 
 			case ARR_DEST :
 			// Arriver a destination, on desincremente la case du tableau correspondant, on met a jour les moyennes et on libere l'espace alloué par le paquet dans la liste
-				// factoriser en un parcours
 				tmp = parcours(liste, line->pid);
+				tmp->attente_file += line->t;
 				moy_trajet = update_Calcul_Moy(moy_trajet, line->t - tmp->duree);
 				moy_attente = update_Calcul_Moy(moy_attente, tmp->attente_file);
 				liste = del_parcours_paquet(line->pid, liste);
@@ -105,6 +110,7 @@ int main(int argc, char **argv)
 			case DESTRUCTION :
 			// operation similaire à ARR_DEST avec pour difference on incremente la case correspondant au compteur de paquets
 				tmp = parcours(liste, line->pid);
+				tmp->attente_file += line->t;
 				moy_trajet = update_Calcul_Moy(moy_trajet, line->t - tmp->duree);
 				moy_attente = update_Calcul_Moy(moy_attente, tmp->attente_file);
 				liste = del_parcours_paquet(line->pid, liste);
@@ -117,7 +123,8 @@ int main(int argc, char **argv)
 		for (i=0;i<taille_tab_fid;i++)
 				if(tab_fid[i]>0)
 					nb_flux_actifs++;
-		// Dans le cas si l'utilisateur veut faire le graphe
+
+		// Dans le cas où l'utilisateur veut faire le graphe
 		if(plot_graph)
 		{
 			if(i%SAUTER_LIGNE == 0)
@@ -130,6 +137,7 @@ int main(int argc, char **argv)
 				}
 			}
 		}
+
 		free(line);
 		nb_flux_actifs = 0;
 		i++;
@@ -138,16 +146,17 @@ int main(int argc, char **argv)
 	if(plot_graph)
 		fputs(xy,result);
 
+	// On imprime sur la console les résultats du traitement de données
 	printf("On traite %d paquets et on a %d noeuds\n",nb_departs, nb_noeuds);
-	printf("On a %.2lf %% pertes\n",(double)nb_pertes/nb_departs*100);
-	printf("Les pertes se trouvent au niveau des noeuds :\n\t");
+	printf("%.2lf %% des paquets sont perdus\n",(double)nb_pertes/nb_departs*100);
+	printf("Les pertes se trouvent au niveau des noeuds :\n");
 	for (i=0;i<nb_noeuds;i++)
-		if(!paquets_perdus_par_noeuds[i])
-			printf("%d ",i);
-	printf("\n");
+		if(paquets_perdus_par_noeuds[i])
+			printf("\t%d avec %0.4lf %%\n",i, (double)paquets_perdus_par_noeuds[i]/nb_pertes*100);
 	printf("La moyenne du trajet est %lf avec un ecart-type de %lf\n", moy_trajet.moy, get_ecart_type(moy_trajet));
 	printf("La moyenne d'attente est %lf avec un ecart-type de %lf\n", moy_attente.moy, get_ecart_type(moy_attente));
 
+	// On ouvre gnuplot pour tracer le graphe à partir du fichier que l'on a écrit
 	if(plot_graph) 
 	{
 		FILE *pipe = popen("gnuplot -persist","w");
@@ -156,7 +165,7 @@ int main(int argc, char **argv)
 		fclose(pipe);
 	}
 
-
+	// On libère l'espace alloué et on ferme les fichiers ouverts
 	free_liste(liste);
 	free(tab_fid);
 	fclose(trace);

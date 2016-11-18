@@ -196,7 +196,7 @@ Liste substract_attente(Liste liste, int pid, double t)
 		return NULL;
 
 	else if(liste->pid == pid){
-		liste->attente_file = abs(liste->duree - t);
+		liste->attente_file -= t;
 		return liste;
 	}
 	else {
