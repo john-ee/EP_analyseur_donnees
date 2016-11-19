@@ -146,14 +146,14 @@ int main(int argc, char **argv)
 		fputs(xy,result);
 
 	// On imprime sur la console les résultats du traitement de données
-	printf("On traite %d paquets et on a %d noeuds\n",nb_departs, nb_noeuds);
+	printf("On traite %d paquets et %d noeuds\n",nb_departs, nb_noeuds);
 	printf("%.2lf %% des paquets sont perdus\n",(double)nb_pertes/nb_departs*100);
 	printf("Les pertes se trouvent au niveau des noeuds :\n");
 	for (i=0;i<nb_noeuds;i++)
 		if(paquets_perdus_par_noeuds[i])
 			printf("\t%d avec %0.4lf %%\n",i, (double)paquets_perdus_par_noeuds[i]/nb_pertes*100);
-	printf("La moyenne du trajet est %lf avec un ecart-type de %lf\n", moy_trajet.moy, get_ecart_type(moy_trajet));
-	printf("La moyenne d'attente est %lf avec un ecart-type de %lf\n", moy_attente.moy, get_ecart_type(moy_attente));
+	printf("La moyenne du trajet de bout en bout est %lf avec un ecart-type de %lf\n", moy_trajet.moy, get_ecart_type(moy_trajet));
+	printf("La moyenne d'attente en file d'attente est %lf avec un ecart-type de %lf\n", moy_attente.moy, get_ecart_type(moy_attente));
 
 	// On ouvre gnuplot pour tracer le graphe à partir du fichier que l'on a écrit
 	if(plot_graph) 

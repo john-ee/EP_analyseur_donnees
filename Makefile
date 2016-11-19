@@ -16,3 +16,4 @@ $(APPLI):	$(COBJ)
 
 clean:
 	rm *.o
+	rm $(APPLI)

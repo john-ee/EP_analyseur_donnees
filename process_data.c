@@ -66,7 +66,7 @@ Liste add_parcours_paquet(Line l, Liste liste)
 	parcours->source = l->source;
 	parcours->destination = l->destination;
 	parcours->duree = l->t;
-	parcours->attente_file = 0;
+	parcours->attente_file = -l->t;
 	parcours->next = liste;
 	return parcours;
 }
