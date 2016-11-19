@@ -111,7 +111,6 @@ int main(int argc, char **argv)
 			// operation similaire à ARR_DEST avec pour difference on incremente la case correspondant au compteur de paquets
 				tmp = parcours(liste, line->pid);
 				tmp->attente_file += line->t;
-				moy_trajet = update_Calcul_Moy(moy_trajet, line->t - tmp->duree);
 				moy_attente = update_Calcul_Moy(moy_attente, tmp->attente_file);
 				liste = del_parcours_paquet(line->pid, liste);
 				tab_fid[line->fid]--;
