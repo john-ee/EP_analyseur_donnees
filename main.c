@@ -11,14 +11,16 @@
 #include "process_data.h"
 
 // BUFSIZE est utilisé pour le buffer, afin de minimiser le nombre d'écriture dans le fichier
-#define BUFSIZE 150
+#define BUFSIZE 300
 
 // STRINGSIZE sert pour les chaînes de caractères que l'on ajoute au buffer
 #define STRINGSIZE 50
 
-// SAUTER_LIGNE permet de sauter 1 lignes sur X à écrire dans le buffer pour éviter de surcharger le graphe
+// SAUTER_LIGNE permet de sauter 1 lignes sur SAUTER_LIGNE à écrire dans le buffer pour éviter de surcharger le graphe
+// En sautant des lgines, on perd en informations mais on gagne en lisibilité et précision du graphe
 // Note :  SAUTER_LIGNE = 1, on ne saute pas de lignes
 #define SAUTER_LIGNE 1
+// /!\ : Lorsque SAUTER_LIGNE > 1, le graphe s'arrête à t = 10.
 
 
 int main(int argc, char **argv)
@@ -38,8 +40,9 @@ int main(int argc, char **argv)
 
 	// Initialisations des entiers et pointeurs d'entiers que l'on utilisera
 	int i = 0;
-	int nb_arrivees = 0;
-	int nb_departs = 0, taille_tab_fid = 0, nb_flux_actifs = 0, nb_pertes = 0;
+	int nb_departs = 0, nb_arrivees = 0, nb_destruction = 0, nb_arr_inter = 0, nb_depart_file = 0;
+	int  taille_tab_fid = 0, nb_flux_actifs = 0;
+	int nb_char = 0;
 	// Ce tableau permettra de compter le nb de paquets dans un flux donc reperer les flux actifs à la fin de chaque boucle while. Il sera alloué dynamiquement
 	int *tab_fid = NULL;
 	// Grace au fichier matrice, on peut trouver le nombre de noeuds
@@ -81,7 +84,7 @@ int main(int argc, char **argv)
 				// Cette condition permet d'agrandir la longeur du tableau. La variable taille_tab_fid permet de connaitre sa taille a tout instant
 				if (line->fid+1 > taille_tab_fid){
 					tab_fid = malloc((line->fid+1)*sizeof(int));
-					for (i=line->fid+1 - taille_tab_fid;i<line->fid;i++)
+					for (i=line->fid+1 - taille_tab_fid;i<line->fid+1;i++)
 						tab_fid[i] = 0;
 					taille_tab_fid = line->fid+1;
 				}
@@ -90,10 +93,12 @@ int main(int argc, char **argv)
 
 			case ARR_NOEUD : 
 				liste = substract_attente(liste, line->pid, line->t);
+				nb_arr_inter++;
 				break;
 
 			case DEPART_FILE : 
 				liste = add_attente(liste, line->pid, line->t);
+				nb_depart_file++;
 				break;
 
 			case ARR_DEST :
@@ -114,7 +119,7 @@ int main(int argc, char **argv)
 				moy_attente = update_Calcul_Moy(moy_attente, tmp->attente_file);
 				liste = del_parcours_paquet(line->pid, liste);
 				tab_fid[line->fid]--;
-				nb_pertes++;
+				nb_destruction++;
 				paquets_perdus_par_noeuds[line->position]++;
 			default : break;
 		}
@@ -128,11 +133,12 @@ int main(int argc, char **argv)
 		{
 			if(i%SAUTER_LIGNE == 0)
 			{
-				sprintf(str_tmp,"%lf\t%d\n",line->t,nb_flux_actifs);
+				nb_char += sprintf(str_tmp,"%lf\t%d\n",line->t,nb_flux_actifs);
 				strcat(xy, str_tmp);
-				if (sizeof(xy) > BUFSIZE){
+				if (nb_char > BUFSIZE){
 					fputs(xy,result);
 					xy[0] = '\0';
+					nb_char = 0;
 				}
 			}
 		}
@@ -146,18 +152,23 @@ int main(int argc, char **argv)
 		fputs(xy,result);
 
 	// On imprime sur la console les résultats du traitement de données
-	printf("On traite %d paquets et %d noeuds\n",nb_departs, nb_noeuds);
-	printf("%.2lf %% des paquets sont perdus\n",(double)nb_pertes/nb_departs*100);
+	printf("Nb de départ de la source %d\n", nb_departs);
+	printf("Nb d'arrivées à destination %d\n", nb_arrivees);
+	printf("Nb d'arrivées à un noeud intermédiaire %d\n", nb_arr_inter);
+	printf("Nb de paquets détruits %d\n", nb_destruction);
+	printf("Nb de départ de file d'attente %d\n", nb_depart_file);
+	printf("%.2lf %% des paquets sont perdus\n",(double)nb_destruction/nb_departs*100);
 	printf("Les pertes se trouvent au niveau des noeuds :\n");
 	for (i=0;i<nb_noeuds;i++)
 		if(paquets_perdus_par_noeuds[i])
-			printf("\t%d avec %0.4lf %%\n",i, (double)paquets_perdus_par_noeuds[i]/nb_pertes*100);
+			printf("\t%d avec %0.4lf %%\n",i, (double)paquets_perdus_par_noeuds[i]/nb_destruction*100);
 	printf("La moyenne du trajet de bout en bout est %lf avec un ecart-type de %lf\n", moy_trajet.moy, get_ecart_type(moy_trajet));
 	printf("La moyenne d'attente en file d'attente est %lf avec un ecart-type de %lf\n", moy_attente.moy, get_ecart_type(moy_attente));
 
 	// On ouvre gnuplot pour tracer le graphe à partir du fichier que l'on a écrit
 	if(plot_graph) 
-	{
+	{	
+		fclose(result);
 		FILE *pipe = popen("gnuplot -persist","w");
 		fprintf(pipe, "plot 'flux_actifs.txt' using 1:2 with lines title \"Nb Flux Actifs en fonction du Temps\"\n");
 		fflush(pipe);
@@ -169,7 +180,5 @@ int main(int argc, char **argv)
 	free(tab_fid);
 	fclose(trace);
 	fclose(matrice);
-	if (plot_graph)
-		fclose(result);
 	return 0;
 }
